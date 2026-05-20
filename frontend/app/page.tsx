@@ -1,6 +1,15 @@
+"use client";
+
 import { GitBranchIcon } from "lucide-react";
 
 export default function Home() {
+
+    const githubLogin = () => {
+      const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+
+      window.location.href =
+        `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=read:user user:email`;
+    };
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
       <div className="max-w-3xl text-center">
@@ -22,9 +31,11 @@ export default function Home() {
           repositories faster, and contribute confidently using AI-powered
           recommendations and codebase insights.
         </p>
-
         <div className="mt-10 flex items-center justify-center">
-          <button className="flex items-center gap-3 bg-white text-black hover:bg-zinc-200 transition-all px-6 py-3 rounded-xl font-medium text-lg">
+          <button
+            onClick={githubLogin}
+            className="flex items-center gap-3 bg-white text-black hover:bg-zinc-200 transition-all px-6 py-3 rounded-xl font-medium text-lg"
+          >
             <GitBranchIcon className="h-5 w-5" />
             Continue with GitHub
           </button>
