@@ -16,6 +16,12 @@ export default function CallbackPage() {
         .then((res) => res.json())
         .then((data) => {
           console.log("GitHub User Data:", data);
+
+          localStorage.setItem(
+            "githubData",
+            JSON.stringify(data)
+          );
+          window.location.href = "/dashboard";
         })
         .catch((err) => {
           console.error(err);
@@ -23,6 +29,8 @@ export default function CallbackPage() {
     }
   }, [searchParams]);
 
+
+  
   return (
     <div className="flex items-center justify-center min-h-screen">
       <h1 className="text-2xl font-bold">

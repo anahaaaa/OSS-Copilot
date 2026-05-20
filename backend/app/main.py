@@ -57,6 +57,17 @@ def github_auth(code: str):
         }
     )
 
-    user_data = user_response.json()
+    repos_response = requests.get(
+        "https://api.github.com/user/repos",
+        headers = {
+            "Authorization" : f"Bearer {access_token}"
+        }
+    )
 
-    return user_data
+    user_data = user_response.json()
+    repos_data = repos_response.json()
+
+    return {
+        "user" : user_data,
+        "repos" : repos_data
+    }
