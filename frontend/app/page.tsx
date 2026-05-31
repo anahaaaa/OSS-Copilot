@@ -1,75 +1,77 @@
 "use client";
 
-import { GitBranchIcon } from "lucide-react";
+import { GitBranchIcon, User, Lock } from "lucide-react";
+import "./landing.css";
 
 export default function Home() {
+  const githubLogin = () => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=read:user user:email`;
+  };
 
-    const githubLogin = () => {
-      const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
-
-      window.location.href =
-        `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=read:user user:email`;
-    };
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
-      <div className="max-w-3xl text-center">
-        
-        <div className="inline-flex items-center gap-2 border border-zinc-800 bg-zinc-900 px-4 py-2 rounded-full mb-6">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
-          <p className="text-sm text-zinc-300">
-            AI-Powered Open Source Contribution Assistant
+    <main className="landing-root">
+      {/* Decorative blobs */}
+      <div className="blob blob-tl" />
+      <div className="blob blob-tr" />
+      <div className="blob blob-bl" />
+      <div className="blob blob-br" />
+
+      <div className="landing-card">
+        {/* Left panel */}
+        <div className="left-panel">
+          <div className="logo-badge">
+            <span className="logo-dot" />
+            <span className="logo-text">OSSCopilot</span>
+          </div>
+
+          <h1 className="hero-title">
+            OSS<span className="hero-accent">Copilot</span>
+          </h1>
+
+          <p className="hero-desc">
+            Discover open source issues tailored to your skills, understand
+            repositories faster, and contribute confidently using AI-powered
+            recommendations and codebase insights.
           </p>
+
+          <div className="feature-pills">
+            <span className="pill">Smart Recommendations</span>
+            <span className="pill">Repo Understanding</span>
+            <span className="pill">Contribution Guidance</span>
+          </div>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight">
-          OSS
-          <span className="text-zinc-400">Copilot</span>
-        </h1>
+        {/* Right panel — Sign In */}
+        <div className="right-panel">
+          <div className="signin-box">
+            <h2 className="signin-title">SIGN IN</h2>
 
-        <p className="mt-6 text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-          Discover open source issues tailored to your skills, understand
-          repositories faster, and contribute confidently using AI-powered
-          recommendations and codebase insights.
-        </p>
-        <div className="mt-10 flex items-center justify-center">
-          <button
-            onClick={githubLogin}
-            className="flex items-center gap-3 bg-white text-black hover:bg-zinc-200 transition-all px-6 py-3 rounded-xl font-medium text-lg"
-          >
-            <GitBranchIcon className="h-5 w-5" />
-            Continue with GitHub
-          </button>
-        </div>
+            <div className="input-group">
+              <User className="input-icon" size={16} />
+              <input className="signin-input" placeholder="Username" type="text" readOnly />
+            </div>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          <div className="border border-zinc-800 bg-zinc-900 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              Smart Recommendations
-            </h3>
-            <p className="text-zinc-400 text-sm">
-              Find GitHub issues matching your skills and experience level.
+            <div className="input-group">
+              <Lock className="input-icon" size={16} />
+              <input className="signin-input" placeholder="Password" type="password" readOnly />
+            </div>
+
+            <label className="agree-row">
+              <input type="checkbox" className="agree-check" defaultChecked />
+              <span>Accept Agreement and Privacy Policy</span>
+            </label>
+
+            <button onClick={githubLogin} className="signin-btn">
+              <GitBranchIcon size={18} />
+              Continue with GitHub
+            </button>
+
+            <p className="signin-footer">
+              Don't have an account?{" "}
+              <a href="#" className="create-link">Create</a>
             </p>
           </div>
-
-          <div className="border border-zinc-800 bg-zinc-900 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              Repo Understanding
-            </h3>
-            <p className="text-zinc-400 text-sm">
-              AI-powered repository architecture and onboarding explanations.
-            </p>
-          </div>
-
-          <div className="border border-zinc-800 bg-zinc-900 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold mb-2">
-              Contribution Guidance
-            </h3>
-            <p className="text-zinc-400 text-sm">
-              Step-by-step implementation plans for open source issues.
-            </p>
-          </div>
-
         </div>
       </div>
     </main>
