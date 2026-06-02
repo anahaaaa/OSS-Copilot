@@ -53,8 +53,12 @@ class UserFeedback(Base):
         default=datetime.utcnow
     )
 
+    user = relationship(
+        "User",
+        back_populates="feedback"
+    )
 
-    scan_jobs = relationship(
-        "ScanJob",
-        back_populates="repository"
+    issue = relationship(
+        "Issue",
+        back_populates="feedback"
     )
