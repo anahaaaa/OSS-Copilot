@@ -111,6 +111,54 @@ def github_auth(code: str):
 
             new_user = existing_user
 
+        for repo_data in repos_data:
+
+            existing_repo = (
+                db.query(Repo)
+                .filter(Repo.github_repo_id == repo_data["id"])
+                .first()
+            )
+
+            if not existing_repo:
+
+                new_repo = Repo(
+                    github_repo_id = repo_data["id"],
+                    user_id = new_user.id,
+                    repo_url = repo_data["html_url"],
+                    repo_name = repo_data["name"],
+                    description = repo_data.get("description"),
+                    language = repo_data.get("language"),
+                    stars = repo_data["stargazers_count"],
+                    forks = repo_data["forks_count"]
+
+                )
+
+                db.add(new_repo)
+
+            else:
+
+                existing_repo.repo_name = repo_data["name"]
+                existing_repo.repo_url = repo_data["html_url"]
+
+                existing_repo.description = repo_data.get(
+                    "description"
+                )
+
+                existing_repo.language = repo_data.get(
+                    "language"
+                )
+
+                existing_repo.stars = repo_data[
+                    "stargazers_count"
+                ]
+
+                existing_repo.forks = repo_data[
+                    "forks_count"
+                ]
+
+        db.commit()
+        user_id = str(new_user.id)
+
     except Exception as e:
         db.rollback()
         raise e
@@ -119,7 +167,7 @@ def github_auth(code: str):
         db.close()
 
     return {
-        "user_id": str(new_user.id),
+        "user_id": user_id,
         "user": user_data,
         "repos": repos_data
     }
