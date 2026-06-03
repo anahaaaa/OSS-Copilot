@@ -34,7 +34,7 @@ class User(Base):
         Text
     )
 
-    skill_vector: Mapped[dict | None] = mapped_column(
+    skill_profile: Mapped[dict | None] = mapped_column(
         JSONB
     )
 
@@ -61,4 +61,10 @@ class User(Base):
     feedback = relationship(
         "UserFeedback",
         back_populates="user"
+    )
+
+    embedding = relationship(
+        "UserEmbeding",
+        back_populates="user",
+        uselist=False
     )
