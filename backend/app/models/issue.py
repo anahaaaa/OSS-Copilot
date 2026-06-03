@@ -51,7 +51,7 @@ class Issue(Base):
         Text
     )
 
-    labels: Mapped[dict | None] = mapped_column(
+    labels: Mapped[list | None] = mapped_column(
         JSONB
     )
 

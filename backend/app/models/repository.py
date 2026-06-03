@@ -20,7 +20,7 @@ class Repo(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id"),
-        nullable=False
+        nullable=True
     )
 
     github_repo_id: Mapped[int] = mapped_column(
@@ -31,6 +31,10 @@ class Repo(Base):
 
     repo_url: Mapped[str] =  mapped_column(
         String(255)
+    )
+
+    owner_name: Mapped[str | None] = mapped_column(
+        String(100)
     )
 
     repo_name: Mapped[str] = mapped_column(

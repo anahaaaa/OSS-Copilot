@@ -11,6 +11,7 @@ from app.models.issue_embedding import IssueEmbedding
 from app.models.repo_chunk import RepoChunk
 from app.models.scan_job import ScanJob
 from app.models.user_feedback import UserFeedback
+from datetime import datetime
 
 load_dotenv()
 
@@ -124,6 +125,7 @@ def github_auth(code: str):
                 new_repo = Repo(
                     github_repo_id = repo_data["id"],
                     user_id = new_user.id,
+                    owner_name=repo_data["owner"]["login"],
                     repo_url = repo_data["html_url"],
                     repo_name = repo_data["name"],
                     description = repo_data.get("description"),
@@ -139,6 +141,10 @@ def github_auth(code: str):
 
                 existing_repo.repo_name = repo_data["name"]
                 existing_repo.repo_url = repo_data["html_url"]
+
+                existing_repo.owner_name = (
+                    repo_data["owner"]["login"]
+                )
 
                 existing_repo.description = repo_data.get(
                     "description"
@@ -170,4 +176,134 @@ def github_auth(code: str):
         "user_id": user_id,
         "user": user_data,
         "repos": repos_data
+    }
+
+@app.post("/scan")
+def scan_repository(
+        owner: str,
+        repo: str
+    ):
+
+
+    db = SessionLocal()
+    try: 
+        repo_record = (
+            db.query(Repo)
+            .filter(
+                Repo.owner_name == owner,
+                Repo.repo_name == repo
+            )
+            .first()
+        )
+
+        if not repo_record:
+
+            repo_meta = requests.get(
+                f"https://api.github.com/repos/{owner}/{repo}"
+            ).json()
+
+
+            if "id" not in repo_meta:
+                return {
+                    "error": "Repository not found"
+                }
+            new_repo = Repo(
+
+            
+            github_repo_id=repo_meta["id"],
+            user_id=None,   # because this is an external repo
+
+            owner_name=owner,
+            repo_name=repo,
+
+            repo_url=repo_meta["html_url"],
+
+            description=repo_meta.get("description"),
+
+            language=repo_meta.get("language"),
+
+            stars=repo_meta["stargazers_count"],
+
+            forks=repo_meta["forks_count"]
+        )
+
+            db.add(new_repo)
+            db.commit()
+            db.refresh(new_repo)
+
+            repo_record = new_repo
+        
+
+        issue_response = requests.get(
+        f"https://api.github.com/repos/{owner}/{repo}/issues",
+        params={
+                "state":"open",
+                "per_page": 100
+            }
+        )
+        issues_data = issue_response.json()
+
+        for issue_data in issues_data:
+
+            if "pull_request" in issue_data:
+                continue
+
+            exisiting_issue = (
+                db.query(Issue)
+                .filter(
+                    Issue.github_issue_id == issue_data["id"]
+                ).first()
+            )
+
+            labels = [label["name"] for label in issue_data["labels"]]
+
+            if not exisiting_issue:
+
+                new_issue = Issue(
+                github_issue_id=issue_data["id"],
+
+                repo_id=repo_record.id,
+
+                title=issue_data["title"],
+
+                body=issue_data.get("body"),
+
+                labels=labels,
+
+                issue_url=issue_data["html_url"],
+
+                comments_count=issue_data["comments"],
+
+                is_open=(
+                    issue_data["state"] == "open"
+                ),
+
+                github_created_at=datetime.fromisoformat(
+                    issue_data["created_at"].replace("Z", "+00:00")
+                ),
+
+                github_updated_at=datetime.fromisoformat(
+                    issue_data["updated_at"].replace("Z", "+00:00")
+                )
+            )
+                
+                db.add(new_issue)
+                
+            else:
+
+                continue
+                    
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise e
+
+    finally:
+        db.close()
+
+    return {
+        "message": "Issues synced",
+        "repository": f"{owner}/{repo}",
+        "count": len(issues_data)
     }
