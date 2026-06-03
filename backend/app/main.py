@@ -13,6 +13,9 @@ from app.models.scan_job import ScanJob
 from app.models.user_feedback import UserFeedback
 from datetime import datetime
 
+from app.services.embedding_service import embed_text
+from app.services.issue_service import create_issue_text
+
 load_dotenv()
 
 app = FastAPI()
@@ -307,3 +310,54 @@ def scan_repository(
         "repository": f"{owner}/{repo}",
         "count": len(issues_data)
     }
+
+@app.post("/embed")
+def embed_issues():
+
+    db = SessionLocal()
+
+    try:
+
+        issues = db.query(Issue).all()
+
+        embedded_count = 0
+
+        for issue in issues:
+
+            existing_embedding = (
+                db.query(IssueEmbedding)
+                .filter(
+                    IssueEmbedding.issue_id == issue.id
+                )
+                .first()
+            )
+
+            if existing_embedding:
+                continue
+
+            issue_text = create_issue_text(issue)
+
+            vector = embed_text(issue_text)
+
+            issue_embedding = IssueEmbedding(
+                issue_id=issue.id,
+                embedding=vector
+            )
+
+            db.add(issue_embedding)
+
+            embedded_count += 1
+
+        db.commit()
+
+        return {
+            "message": "Embeddings generated",
+            "count": embedded_count
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise e
+
+    finally:
+        db.close()
