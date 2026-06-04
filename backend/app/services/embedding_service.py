@@ -6,7 +6,7 @@ load_dotenv()
 
 
 client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
+    api_key=os.getenv("API_KEY"),
     base_url=os.getenv("BASE_URL")
 )
 

@@ -15,6 +15,7 @@ from app.models.issue_embedding import IssueEmbedding
 from app.models.repo_chunk import RepoChunk
 from app.models.user_feedback import UserFeedback
 from app.models.scan_job import ScanJob
+from app.models.user_embedding import UserEmbedding
 
 load_dotenv()
 

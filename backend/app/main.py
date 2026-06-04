@@ -12,9 +12,11 @@ from app.models.repo_chunk import RepoChunk
 from app.models.scan_job import ScanJob
 from app.models.user_feedback import UserFeedback
 from datetime import datetime
+from app.models.user_embedding import UserEmbedding
 
 from app.services.embedding_service import embed_text
 from app.services.issue_service import create_issue_text
+from app.services.skill_service import extract_skills
 
 load_dotenv()
 
@@ -360,4 +362,91 @@ def embed_issues():
         raise e
 
     finally:
+        db.close()
+
+@app.post("/users/{user_id}/embed")
+def embed_user(user_id: str):
+
+    db = SessionLocal()
+
+    try:
+
+        user = (
+            db.query(User)
+            .filter(User.id == user_id)
+            .first()
+        )
+
+        if not user:
+            return {
+                "error": "User not found"
+            }
+
+        repositories = (
+            db.query(Repo)
+            .filter(Repo.user_id == user.id)
+            .all()
+        )
+
+        repo_descriptions = [
+            repo.description
+            for repo in repositories
+            if repo.description
+        ]
+
+        if not repo_descriptions:
+            return {
+                "error": "No repository descriptions found"
+            }
+
+        skills_data = extract_skills(
+            repo_descriptions[:5]
+        )
+
+        user.skill_profile = skills_data
+
+        skills_text = f"""
+Skills:
+{", ".join(skills_data["skills"])}
+
+Domains:
+{", ".join(skills_data["domains"])}
+
+Experience:
+{skills_data["experience_level"]}
+"""
+
+        vector = embed_text(skills_text)
+        existing_embedding = (
+            db.query(UserEmbedding)
+            .filter(UserEmbedding.user_id == user.id)
+            .first()
+        )
+        if not existing_embedding:
+
+            new_embedding = UserEmbedding(
+                user_id=user.id,
+                embedding=vector
+            )
+
+            db.add(new_embedding)
+
+        else:
+
+            existing_embedding.embedding = vector
+
+        db.commit()
+
+        return {
+            "message": "User profile embedded",
+            "skills": skills_data
+        }
+
+    except Exception as e:
+
+        db.rollback()
+        raise e
+
+    finally:
+
         db.close()

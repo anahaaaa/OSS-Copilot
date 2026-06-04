@@ -64,7 +64,7 @@ class User(Base):
     )
 
     embedding = relationship(
-        "UserEmbeding",
+        "UserEmbedding",
         back_populates="user",
         uselist=False
     )
