@@ -21,7 +21,7 @@ export default function CallbackPage() {
             "githubData",
             JSON.stringify(data)
           );
-          window.location.href = "/dashboard";
+          window.location.href = "/onboarding";
         })
         .catch((err) => {
           console.error(err);
