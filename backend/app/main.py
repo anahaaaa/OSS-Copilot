@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 import requests
 import os
 from dotenv import load_dotenv
@@ -446,6 +447,76 @@ Experience:
 
         db.rollback()
         raise e
+
+    finally:
+
+        db.close()
+
+
+@app.get("/users/{user_id}/recommendations")
+def get_recommendations(user_id: str):
+
+    db = SessionLocal()
+
+    try:
+
+        user_embedding = (
+            db.query(UserEmbedding)
+            .filter(
+                UserEmbedding.user_id == user_id
+            )
+            .first()
+        )
+
+
+        if not user_embedding:
+
+            return {
+                "error": "User embedding not found"
+            }
+
+        vector_str = "[" + ",".join(
+            map(str, user_embedding.embedding.tolist())
+        ) + "]"
+
+        print(vector_str[:200])
+        results = db.execute(
+            text("""
+            SELECT
+                issues.title,
+                issues.issue_url,
+                issues.labels,
+
+                issue_embeddings.embedding
+                <=> CAST(:user_embedding AS vector)
+                AS distance
+
+            FROM issue_embeddings
+            JOIN issues
+                ON issues.id = issue_embeddings.issue_id
+
+            ORDER BY distance
+            LIMIT 10
+            """),
+            {
+                "user_embedding": vector_str
+            }
+        )
+
+        recommendations = []
+
+        for row in results:
+
+            recommendations.append(
+                {
+                    "title": row.title,
+                    "url": row.issue_url,
+                    "labels": row.labels,
+                    "score": float(row.distance)
+                }
+            )
+
+        return recommendations
 
     finally:
 

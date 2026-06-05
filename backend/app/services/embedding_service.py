@@ -17,5 +17,3 @@ def embed_text(text: str) -> list[float]:
         input=text
     )
     return response.data[0].embedding
-embedding = embed_text("Hello world")
-print(len(embedding))
