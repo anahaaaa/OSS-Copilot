@@ -126,12 +126,14 @@ export default function OnboardingPage() {
     }
   }, []);
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
-      </div>
-    );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
   }
 
   const displayName = user.name || user.login;
@@ -149,7 +151,7 @@ const handleStart = async () => {
 
   await new Promise((r) => setTimeout(r, 1200));
 
-  router.push("/dashboard");
+  router.push("/analysis");
 };
 
   return (
