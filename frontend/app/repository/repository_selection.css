@@ -1,0 +1,313 @@
+/* ─────────────────────────────────────────────
+Repository Selection Page
+───────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500&display=swap');
+
+:root {
+--bg: #070709;
+--card: #0c0c10;
+--card-hover: #111116;
+
+--border: rgba(255,255,255,0.08);
+--border-hover: rgba(255,255,255,0.14);
+
+--text: #f3f4f6;
+--text-muted: #8b8b9e;
+
+--purple: #6366f1;
+--purple-light: #a5b4fc;
+
+--radius: 14px;
+}
+
+/* ───────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  }
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: "Bricolage Grotesque", sans-serif;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-root {
+min-height: 100vh;
+background:
+radial-gradient(
+circle at top center,
+rgba(99,102,241,0.12),
+transparent 50%
+),
+var(--bg);
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-nav {
+height: 60px;
+padding: 0 32px;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+border-bottom: 1px solid var(--border);
+
+backdrop-filter: blur(12px);
+
+position: sticky;
+top: 0;
+z-index: 50;
+
+background: rgba(7,7,9,0.85);
+}
+
+.repo-logo {
+font-weight: 700;
+letter-spacing: -0.03em;
+}
+
+.repo-step {
+font-size: 12px;
+font-family: "Geist Mono", monospace;
+color: var(--text-muted);
+
+border: 1px solid var(--border);
+padding: 6px 12px;
+border-radius: 999px;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-container {
+width: 100%;
+max-width: 760px;
+
+margin: 0 auto;
+padding: 80px 24px;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-badge {
+display: inline-flex;
+align-items: center;
+
+padding: 6px 14px;
+
+border-radius: 999px;
+
+border: 1px solid rgba(99,102,241,.25);
+
+background: rgba(99,102,241,.08);
+
+color: var(--purple-light);
+
+font-size: 12px;
+font-family: "Geist Mono", monospace;
+
+margin-bottom: 24px;
+}
+
+.repo-title {
+font-size: clamp(36px, 6vw, 52px);
+font-weight: 800;
+
+line-height: 1.05;
+letter-spacing: -0.05em;
+
+margin-bottom: 16px;
+}
+
+.repo-subtitle {
+color: var(--text-muted);
+
+line-height: 1.8;
+font-size: 16px;
+
+max-width: 620px;
+
+margin-bottom: 48px;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-search {
+margin-bottom: 20px;
+}
+
+.repo-search input {
+width: 100%;
+
+padding: 18px 20px;
+
+border-radius: var(--radius);
+
+border: 1px solid var(--border);
+
+background: var(--card);
+
+color: white;
+
+font-size: 16px;
+
+outline: none;
+
+transition: 0.2s ease;
+}
+
+.repo-search input:focus {
+border-color: var(--purple);
+
+box-shadow:
+0 0 0 4px rgba(99,102,241,0.15);
+}
+
+.repo-search input::placeholder {
+color: var(--text-muted);
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-examples {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+
+margin-bottom: 48px;
+}
+
+.repo-examples span {
+padding: 8px 12px;
+
+border-radius: 999px;
+
+background: rgba(255,255,255,0.04);
+
+border: 1px solid var(--border);
+
+color: var(--text-muted);
+
+font-size: 13px;
+font-family: "Geist Mono", monospace;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-section-title {
+font-size: 14px;
+font-weight: 600;
+
+color: var(--text-muted);
+
+margin-bottom: 18px;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-grid {
+display: grid;
+gap: 14px;
+
+margin-bottom: 36px;
+}
+
+.repo-card {
+background: var(--card);
+
+border: 1px solid var(--border);
+
+border-radius: var(--radius);
+
+padding: 18px 20px;
+
+cursor: pointer;
+
+transition: all 0.2s ease;
+}
+
+.repo-card:hover {
+border-color: var(--border-hover);
+
+background: var(--card-hover);
+
+transform: translateY(-2px);
+}
+
+.repo-card-name {
+font-weight: 700;
+
+margin-bottom: 6px;
+}
+
+.repo-card-full {
+font-size: 14px;
+
+color: var(--text-muted);
+
+font-family: "Geist Mono", monospace;
+}
+
+/* ───────────────────────────────────────────── */
+
+.repo-btn {
+width: 100%;
+
+padding: 16px;
+
+border: none;
+
+border-radius: var(--radius);
+
+background: linear-gradient(
+135deg,
+#6366f1,
+#7c3aed
+);
+
+color: white;
+
+font-size: 15px;
+font-weight: 700;
+
+cursor: pointer;
+
+transition: all 0.2s ease;
+
+box-shadow:
+0 10px 30px rgba(99,102,241,0.25);
+}
+
+.repo-btn:hover {
+transform: translateY(-2px);
+
+box-shadow:
+0 16px 40px rgba(99,102,241,0.35);
+}
+
+.repo-btn:active {
+transform: translateY(0);
+}
+
+/* ───────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+.repo-container {
+padding: 60px 20px;
+}
+
+.repo-nav {
+padding: 0 20px;
+}
+
+.repo-title {
+font-size: 34px;
+}
+}
