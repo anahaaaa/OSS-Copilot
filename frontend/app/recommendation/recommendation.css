@@ -1,0 +1,351 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+--bg: #070709;
+--sidebar: #0b0b0e;
+--card: #111114;
+
+--border: rgba(255,255,255,0.08);
+
+--text: #f5f5f7;
+--muted: #8b8b9e;
+
+--primary: #6366f1;
+--primary-light: #a5b4fc;
+
+--success: #22c55e;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  }
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: "Inter", sans-serif;
+}
+
+/* ========================= */
+
+.rec-root {
+min-height: 100vh;
+display: flex;
+}
+
+/* ========================= */
+/* Sidebar */
+/* ========================= */
+
+.rec-sidebar {
+width: 260px;
+background: var(--sidebar);
+
+border-right: 1px solid var(--border);
+
+padding: 24px;
+
+position: sticky;
+top: 0;
+height: 100vh;
+}
+
+.rec-logo {
+font-size: 22px;
+font-weight: 800;
+
+margin-bottom: 40px;
+}
+
+.rec-nav {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.rec-nav-item {
+padding: 12px 14px;
+
+border-radius: 10px;
+
+color: var(--muted);
+
+cursor: pointer;
+
+transition: 0.2s;
+}
+
+.rec-nav-item:hover {
+background: rgba(255,255,255,0.05);
+color: white;
+}
+
+.rec-nav-item.active {
+background: rgba(99,102,241,0.15);
+color: white;
+}
+
+/* ========================= */
+/* Main */
+/* ========================= */
+
+.rec-main {
+flex: 1;
+padding: 40px;
+}
+
+.rec-header {
+margin-bottom: 32px;
+}
+
+.rec-badge {
+display: inline-flex;
+
+padding: 8px 14px;
+
+border-radius: 999px;
+
+background: rgba(99,102,241,0.12);
+
+border: 1px solid rgba(99,102,241,0.25);
+
+color: var(--primary-light);
+
+font-size: 12px;
+
+margin-bottom: 18px;
+}
+
+.rec-title {
+font-size: 48px;
+font-weight: 800;
+
+letter-spacing: -0.04em;
+
+margin-bottom: 10px;
+}
+
+.rec-subtitle {
+color: var(--muted);
+
+max-width: 700px;
+
+line-height: 1.7;
+}
+
+/* ========================= */
+
+.rec-grid {
+display: grid;
+gap: 24px;
+}
+
+/* ========================= */
+/* Issue Card */
+/* ========================= */
+
+.issue-card {
+background: var(--card);
+
+border: 1px solid var(--border);
+
+border-radius: 18px;
+
+padding: 24px;
+
+transition: 0.25s;
+}
+
+.issue-card:hover {
+transform: translateY(-2px);
+
+border-color: rgba(99,102,241,0.25);
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* ========================= */
+
+.issue-top {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+
+margin-bottom: 20px;
+}
+
+.issue-title {
+font-size: 22px;
+font-weight: 700;
+
+margin-bottom: 8px;
+}
+
+.issue-repo {
+color: var(--muted);
+font-size: 14px;
+}
+
+.issue-score {
+background: rgba(34,197,94,0.12);
+
+color: var(--success);
+
+padding: 8px 14px;
+
+border-radius: 999px;
+
+font-weight: 700;
+}
+
+/* ========================= */
+
+.issue-meta {
+margin-bottom: 20px;
+}
+
+.issue-skills {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+}
+
+.skill-pill {
+padding: 8px 12px;
+
+border-radius: 999px;
+
+background: rgba(255,255,255,0.05);
+
+border: 1px solid var(--border);
+
+font-size: 13px;
+}
+
+/* ========================= */
+
+.issue-ai {
+background: rgba(255,255,255,0.03);
+
+border: 1px solid var(--border);
+
+border-radius: 14px;
+
+padding: 18px;
+
+margin-bottom: 22px;
+}
+
+.issue-ai-title {
+font-weight: 700;
+
+margin-bottom: 12px;
+}
+
+.issue-reason {
+color: var(--muted);
+
+margin-bottom: 8px;
+}
+
+.issue-reason:last-child {
+margin-bottom: 0;
+}
+
+/* ========================= */
+
+.issue-actions {
+display: flex;
+gap: 12px;
+}
+
+.view-btn {
+flex: 1;
+
+border: none;
+
+padding: 14px;
+
+border-radius: 12px;
+
+background: var(--primary);
+
+color: white;
+
+font-weight: 600;
+
+cursor: pointer;
+}
+
+.view-btn:hover {
+opacity: 0.95;
+}
+
+.save-btn {
+border: 1px solid var(--border);
+
+background: transparent;
+
+color: white;
+
+padding: 14px 20px;
+
+border-radius: 12px;
+
+cursor: pointer;
+}
+
+.save-btn:hover {
+background: rgba(255,255,255,0.05);
+}
+
+/* ========================= */
+
+.rec-loading,
+.empty-state {
+min-height: 100vh;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+color: var(--muted);
+
+font-size: 20px;
+}
+
+/* ========================= */
+
+@media (max-width: 900px) {
+.rec-root {
+flex-direction: column;
+}
+
+.rec-sidebar {
+width: 100%;
+height: auto;
+
+position: relative;
+
+}
+
+.rec-main {
+padding: 24px;
+}
+
+.rec-title {
+font-size: 34px;
+}
+
+.issue-top {
+flex-direction: column;
+gap: 12px;
+}
+
+.issue-actions {
+flex-direction: column;
+}
+}
