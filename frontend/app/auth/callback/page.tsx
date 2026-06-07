@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default function CallbackPage() {
+function CallbackContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -13,17 +11,14 @@ export default function CallbackPage() {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     if (code) {
-      console.log("GitHub Code:", code);
-
       fetch(`${API_BASE}/auth/github?code=${code}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log("GitHub User Data:", data);
-
           localStorage.setItem(
             "githubData",
             JSON.stringify(data)
           );
+
           window.location.href = "/onboarding";
         })
         .catch((err) => {
@@ -32,13 +27,27 @@ export default function CallbackPage() {
     }
   }, [searchParams]);
 
-
-  
   return (
     <div className="flex items-center justify-center min-h-screen">
       <h1 className="text-2xl font-bold">
         Authenticating with GitHub...
       </h1>
     </div>
+  );
+}
+
+export default function CallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <h1 className="text-2xl font-bold">
+            Loading...
+          </h1>
+        </div>
+      }
+    >
+      <CallbackContent />
+    </Suspense>
   );
 }
