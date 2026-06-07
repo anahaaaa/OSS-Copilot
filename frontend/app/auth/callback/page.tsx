@@ -8,11 +8,12 @@ export default function CallbackPage() {
 
   useEffect(() => {
     const code = searchParams.get("code");
+    const API_BASE = "https://oss-copilot.onrender.com";
 
     if (code) {
       console.log("GitHub Code:", code);
 
-      fetch(`http://127.0.0.1:8000/auth/github?code=${code}`)
+      fetch(`${API_BASE}/auth/github?code=${code}`)
         .then((res) => res.json())
         .then((data) => {
           console.log("GitHub User Data:", data);
