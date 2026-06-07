@@ -8,7 +8,7 @@ export default function CallbackPage() {
 
   useEffect(() => {
     const code = searchParams.get("code");
-    const API_BASE = "https://oss-copilot.onrender.com";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     if (code) {
       console.log("GitHub Code:", code);
