@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from typing import Generator
+from sqlalchemy.orm import Session, sessionmaker, DeclarativeBase
 import os
 
 load_dotenv()
@@ -14,6 +15,14 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine
 )
+
+def get_db() -> Generator:
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
 
 class Base(DeclarativeBase):
     pass
