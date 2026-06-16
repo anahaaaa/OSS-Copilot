@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 import requests
 import os
 from dotenv import load_dotenv
-from app.database import SessionLocal
+from app.database import get_db
 from app.models.user import User
 from app.models.repository import Repo
 from app.models.issue import Issue
@@ -43,7 +44,7 @@ def home():
 
 
 @app.get("/auth/github")
-def github_auth(code: str):
+def github_auth(code: str, db: Session = Depends(get_db)):
 
     token_url = "https://github.com/login/oauth/access_token"
 
@@ -84,8 +85,6 @@ def github_auth(code: str):
 
     user_data = user_response.json()
     repos_data = repos_response.json()
-
-    db = SessionLocal()
 
     try:
         existing_user = (
@@ -175,9 +174,6 @@ def github_auth(code: str):
         db.rollback()
         raise e
 
-    finally:
-        db.close()
-
     return {
         "user_id": user_id,
         "user": user_data,
@@ -187,11 +183,10 @@ def github_auth(code: str):
 @app.post("/scan")
 def scan_repository(
         owner: str,
-        repo: str
+        repo: str,
+        db: Session = Depends(get_db)
     ):
 
-
-    db = SessionLocal()
     try: 
         repo_record = (
             db.query(Repo)
@@ -301,12 +296,11 @@ def scan_repository(
                     
         db.commit()
 
+    except HTTPException:
+        raise   
     except Exception as e:
         db.rollback()
         raise e
-
-    finally:
-        db.close()
 
     return {
         "message": "Issues synced",
@@ -315,9 +309,7 @@ def scan_repository(
     }
 
 @app.post("/embed")
-def embed_issues():
-
-    db = SessionLocal()
+def embed_issues(db: Session = Depends(get_db)):
 
     try:
 
@@ -362,13 +354,9 @@ def embed_issues():
         db.rollback()
         raise e
 
-    finally:
-        db.close()
 
 @app.post("/users/{user_id}/embed")
-def embed_user(user_id: str):
-
-    db = SessionLocal()
+def embed_user(user_id: str, db: Session = Depends(get_db)):
 
     try:
 
@@ -448,15 +436,9 @@ Experience:
         db.rollback()
         raise e
 
-    finally:
-
-        db.close()
-
 
 @app.get("/users/{user_id}/recommendations")
-def get_recommendations(user_id: str):
-
-    db = SessionLocal()
+def get_recommendations(user_id: str, db: Session = Depends(get_db)):
 
     try:
 
@@ -518,6 +500,7 @@ def get_recommendations(user_id: str):
 
         return recommendations
 
-    finally:
+    except Exception as e:
 
-        db.close()
+        db.rollback()
+        raise e
