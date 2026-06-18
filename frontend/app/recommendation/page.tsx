@@ -18,25 +18,24 @@ const [loading, setLoading] = useState(true);
 useEffect(() => {
 const loadRecommendations = async () => {
 try {
-const githubData =
-localStorage.getItem("githubData");
+  const token =
+    localStorage.getItem("token");
 
-    if (!githubData) return;
+  if (!token) return;
 
-    const parsed =
-      JSON.parse(githubData);
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/users/me/recommendations`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
 
-    const userId =
-      parsed.user_id;
+  const data =
+    await response.json();
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/recommendations`
-    );
-
-    const data =
-      await response.json();
-
-    setIssues(data);
+  setIssues(data);
 
   } catch (error) {
     console.error(

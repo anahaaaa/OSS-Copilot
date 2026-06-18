@@ -35,6 +35,12 @@ export default function RepositoryAnalysisPage() {
   // Run repository analysis
   useEffect(() => {
     const runAnalysis = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        router.push("/");
+        return;
+      }
       const selectedRepo = localStorage.getItem("selectedRepo");
 
       if (!selectedRepo) return;
@@ -49,10 +55,15 @@ export default function RepositoryAnalysisPage() {
         // Stage 2 - Scan Repository
         setActiveStage(1);
 
+        const token = localStorage.getItem("token");
+
         const scanResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/scan?owner=${owner}&repo=${repo}`,
           {
             method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
@@ -67,6 +78,9 @@ export default function RepositoryAnalysisPage() {
           `${process.env.NEXT_PUBLIC_API_URL}/embed`,
           {
             method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 

@@ -16,6 +16,14 @@ interface OnboardingProps {
   onStartAnalysis?: () => Promise<void>;
 }
 
+interface User {
+  id: string;
+  username: string;
+  avatar_url: string;
+  name?: string;
+  public_repos?: number;
+  followers?: number;
+}
 /* ─── Inline SVG icons ───────────────────────────────── */
 const Icon = {
   GitFork: () => (
@@ -115,14 +123,13 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("githubData");
+    const stored = localStorage.getItem("user");
 
     if (stored) {
-      const data = JSON.parse(stored);
-      setUser(data.user);
+      setUser(JSON.parse(stored));
     }
   }, []);
 
@@ -132,11 +139,10 @@ export default function OnboardingPage() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
+  if (!mounted || !user) {
     return null;
   }
-
-  const displayName = user.name || user.login;
+  const displayName = user.name || user.username;
   const initials = displayName.slice(0, 2).toUpperCase();
 
   const counts: Record<string, string> = {
@@ -188,7 +194,7 @@ const handleStart = async () => {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={user.avatar_url}
-                alt={user.login}
+                alt={user.username}
                 className="ob-avatar"
               />
               <div className="ob-avatar-badge"><Icon.Check /></div>
@@ -211,7 +217,7 @@ const handleStart = async () => {
 
           <div className="ob-gh-chip">
             <Icon.Github />
-            @{user.login}
+            @{user.username}
           </div>
         </div>
 
