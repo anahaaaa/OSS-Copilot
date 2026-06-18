@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
-import requests
+import asyncio
 import os
+import httpx
 
 from app.database import get_db
 from app.models.user import User
@@ -14,44 +15,34 @@ CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 
 @router.get("/auth/github")
-def github_auth(code: str, db: Session = Depends(get_db)):
+async def github_auth(code: str, db: Session = Depends(get_db)):
 
-    token_url = "https://github.com/login/oauth/access_token"
+    async with httpx.AsyncClient() as client:
 
-    payload = {
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "code": code
-    }
-
-    headers = {
-        "Accept": "application/json"
-    }
-
-    response = requests.post(
-        token_url,
-        json=payload,
-        headers=headers
-    )
-
-    access_token = response.json().get("access_token")
-
-    if not access_token:
-        return {"error": "Failed to get access token"}
-
-    user_response = requests.get(
-        "https://api.github.com/user",
-        headers={
-            "Authorization": f"Bearer {access_token}"
+        token_response = await client.post(
+            "https://github.com/login/oauth/access_token",
+            json={
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "code": code
+        },
+            headers={
+            "Accept": "application/json"
         }
-    )
+        )
 
-    repos_response = requests.get(
-        "https://api.github.com/user/repos",
-        headers = {
-            "Authorization" : f"Bearer {access_token}"
-        }
-    )
+        access_token = token_response.json().get("access_token")
+
+        if not access_token:
+            return {"error": "Failed to get access token"}
+        
+        auth_headers = {
+                "Authorization" : f"Bearer {access_token}"
+            }
+
+        user_response, repos_response = await asyncio.gather(
+            client.get("https://api.github.com/user", headers=auth_headers),
+            client.get("https://api.github.com/user/repos", headers = auth_headers))
 
     user_data = user_response.json()
     repos_data = repos_response.json()
