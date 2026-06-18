@@ -20,8 +20,8 @@ import AnalysisProgress        from "./analysis-progress";
 import { useCallback } from "react";
 
 interface UserMeta {
-  login:        string;
-  public_repos: number;
+  username: string;
+  public_repos?: number;
 }
 
 export default function AnalysisPage() {
@@ -34,20 +34,21 @@ export default function AnalysisPage() {
   /* Kick off backend sync as soon as page mounts */
   useEffect(() => {
     const run = async () => {
-      const githubData = localStorage.getItem("githubData");
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-      if (!githubData) {
-        router.push("/");
-        return;
-      }
+    if (!token || !storedUser) {
+      router.push("/");
+      return;
+    }
 
-      const parsed = JSON.parse(githubData);
+    const user = JSON.parse(storedUser);
 
       /* 1. Get user meta for display */
       try {
         setUser({
-          login: parsed.user?.login ?? "you",
-          public_repos: parsed.repos?.length ?? 0,
+          username: user.username,
+          public_repos: user.public_repos ?? 0,
         });
       } catch {
         console.log("Could not load user data");
@@ -56,9 +57,12 @@ export default function AnalysisPage() {
       /* 2. Trigger analysis on backend */
       try {
         await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/${parsed.user_id}/sync`,
+          `${process.env.NEXT_PUBLIC_API_URL}/users/me/sync`,
           {
             method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
       } catch {
@@ -72,7 +76,7 @@ export default function AnalysisPage() {
   return (
     <AnalysisProgress
       repoCount={user?.public_repos ?? 12}
-      username={user?.login ?? "you"}
+      username={user?.username ?? "you"}
       onComplete={handleComplete}
     />
   );

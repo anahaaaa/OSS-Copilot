@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
+from sqlalchemy import text, UUID
 from sqlalchemy.orm import Session
 import requests
 import os
@@ -15,6 +15,10 @@ from app.models.scan_job import ScanJob
 from app.models.user_feedback import UserFeedback
 from datetime import datetime
 from app.models.user_embedding import UserEmbedding
+
+from app.auth.jwt import create_access_token
+
+from app.api.routes.dependencies import get_current_user
 
 from app.services.embedding_service import embed_text
 from app.services.issue_service import create_issue_text
@@ -169,24 +173,33 @@ def github_auth(code: str, db: Session = Depends(get_db)):
 
         db.commit()
         user_id = str(new_user.id)
+        jwt_token = create_access_token(user_id)
 
     except Exception as e:
         db.rollback()
         raise e
+    
 
     return {
-        "user_id": user_id,
-        "user": user_data,
-        "repos": repos_data
+        "access_token": jwt_token,
+        "token_type": "bearer",
+        "user": {
+            "id": str(new_user.id),
+            "username": new_user.username,
+            "avatar_url": new_user.avatar_url,
+            "public_repos": user_data["public_repos"],
+            "followers": user_data["followers"],
+        }
     }
 
 @app.post("/scan")
 def scan_repository(
-        owner: str,
         repo: str,
+        owner: str,
+        current_user: User = Depends(get_current_user),
         db: Session = Depends(get_db)
     ):
-
+    
     try: 
         repo_record = (
             db.query(Repo)
@@ -309,7 +322,8 @@ def scan_repository(
     }
 
 @app.post("/embed")
-def embed_issues(db: Session = Depends(get_db)):
+def embed_issues( current_user : User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
 
     try:
 
@@ -356,15 +370,12 @@ def embed_issues(db: Session = Depends(get_db)):
 
 
 @app.post("/users/{user_id}/embed")
-def embed_user(user_id: str, db: Session = Depends(get_db)):
+def embed_user(current_user: User = Depends(get_current_user),
+                db: Session = Depends(get_db)):
 
     try:
 
-        user = (
-            db.query(User)
-            .filter(User.id == user_id)
-            .first()
-        )
+        user = current_user
 
         if not user:
             return {
@@ -437,15 +448,16 @@ Experience:
         raise e
 
 
-@app.get("/users/{user_id}/recommendations")
-def get_recommendations(user_id: str, db: Session = Depends(get_db)):
+@app.get("/users/me/recommendations")
+def get_recommendations(current_user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
 
     try:
 
         user_embedding = (
             db.query(UserEmbedding)
             .filter(
-                UserEmbedding.user_id == user_id
+                UserEmbedding.user_id == current_user.id
             )
             .first()
         )

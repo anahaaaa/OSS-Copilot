@@ -14,9 +14,15 @@ function CallbackContent() {
       fetch(`${API_BASE}/auth/github?code=${code}`)
         .then((res) => res.json())
         .then((data) => {
+
           localStorage.setItem(
-            "githubData",
-            JSON.stringify(data)
+            "token",
+            data.access_token
+          );
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify(data.user)
           );
 
           window.location.href = "/onboarding";
