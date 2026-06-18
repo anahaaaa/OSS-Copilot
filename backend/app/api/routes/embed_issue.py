@@ -1,7 +1,5 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
-import requests
-import os
 
 from app.models.user import User
 from app.models.issue import Issue
